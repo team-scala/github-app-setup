@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>team-scala GitHub Apps</title>
+<style>
+body{font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:40px auto;padding:0 16px;color:#1b1f24;background:#fff}
+h1{font-size:24px;margin:0 0 8px}
+.app{border:1px solid #d0d7de;border-radius:8px;padding:16px;margin:16px 0}
+.app h2{font-size:18px;margin:0 0 4px}
+.app p{margin:0 0 12px;color:#57606a}
+button{font:inherit;background:#1f883d;color:#fff;border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+#code{display:none;border:2px solid #1f883d;border-radius:8px;padding:16px;margin:16px 0;background:#f6fff8}
+#code pre{font-size:18px;word-break:break-all;white-space:pre-wrap;margin:8px 0}
+</style>
+</head>
+<body>
+<h1>team-scala GitHub Apps</h1>
+<p>Click Create for each App, then Create GitHub App on GitHub. You come back here with a one-time code: paste it into the Claude chat, then click Install on the App and choose All repositories.</p>
+<div id="code"><strong id="codefor"></strong><pre id="codeval"></pre><button type="button" id="copy">Copy code</button></div>
+<div id="apps"></div>
+<script>
+var page = 'https://team-scala.github.io/github-app-setup/';
+var apps = [
+ {key:'scala-opentofu', what:'Writes workflow files in every repository.', perms:{contents:'write', workflows:'write', metadata:'read'}},
+ {key:'scala-renovate', what:'Dependency updates across the org.', perms:{administration:'read', checks:'write', statuses:'write', contents:'write', vulnerability_alerts:'read', issues:'write', merge_queues:'write', metadata:'read', pull_requests:'write', workflows:'write'}},
+ {key:'scala-release', what:'Tags, releases and container images.', perms:{contents:'write', packages:'write', actions:'write', metadata:'read'}}
+];
+var box = document.getElementById('apps');
+apps.forEach(function (a) {
+ var f = document.createElement('form');
+ f.method = 'post';
+ f.action = 'https://github.com/organizations/team-scala/settings/apps/new?state=' + a.key;
+ f.className = 'app';
+ var m = {name: a.key, url: 'https://github.com/team-scala', hook_attributes: {url: page, active: false}, redirect_url: page, public: false, default_permissions: a.perms, default_events: []};
+ var i = document.createElement('input');
+ i.type = 'hidden'; i.name = 'manifest'; i.value = JSON.stringify(m);
+ var h = document.createElement('h2'); h.textContent = a.key;
+ var p = document.createElement('p'); p.textContent = a.what;
+ var b = document.createElement('button'); b.type = 'submit'; b.textContent = 'Create ' + a.key;
+ f.appendChild(h); f.appendChild(p); f.appendChild(i); f.appendChild(b);
+ box.appendChild(f);
+});
+var q = new URLSearchParams(location.search);
+if (q.get('code')) {
+ document.getElementById('code').style.display = 'block';
+ document.getElementById('codefor').textContent = 'Code for ' + (q.get('state') || 'this App') + ' (paste into the Claude chat within one hour):';
+ document.getElementById('codeval').textContent = q.get('code');
+ document.getElementById('copy').onclick = function () { navigator.clipboard.writeText(q.get('code')); this.textContent = 'Copied'; };
+}
+</script>
+</body>
+</html>
